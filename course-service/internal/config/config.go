@@ -39,13 +39,13 @@ func (c *Config) Validate() error {
 		return errors.New("HTTP_PORT is required")
 	}
 
-	if c.OutboxWorkerInterval == 0 {
-		return errors.New("HTTP_PORT is required")
-	}
-
 	p, err := strconv.Atoi(c.HTTPPort)
 	if err != nil || p <= 0 || p > 65535 {
-		return fmt.Errorf("invalid OUTBOX_WORKER_INTERVAL: %s", c.OutboxWorkerInterval)
+		return fmt.Errorf("invalid HTTP_PORT: %s", c.HTTPPort)
+	}
+
+	if c.OutboxWorkerInterval == 0 {
+		return errors.New("OUTBOX_WORKER_INTERVAL is required")
 	}
 
 	return nil

@@ -13,6 +13,7 @@ type CourseService interface {
 	CreateCourse(ctx context.Context, title string, description string, authorID uuid.UUID) (*domain.Course, error)
 	GetCourse(ctx context.Context, courseID uuid.UUID) (*domain.Course, error)
 	PublishCourse(ctx context.Context, courseID uuid.UUID) error
+	DraftCourse(ctx context.Context, courseID uuid.UUID) error
 }
 
 type CreateCourseRequest struct {
@@ -40,6 +41,26 @@ func (h *Handler) PublishCourse(c *gin.Context) {
 			WithField("course_id", courseUUID).
 			Error("failed to publish course")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to publish course"})
+		return
+	}
+
+	c.Status(http.StatusAccepted)
+}
+
+func (h *Handler) DraftCourse(c *gin.Context) {
+	courseUUID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is not valid"})
+		return
+	}
+
+	err = h.courseService.DraftCourse(c.Request.Context(), courseUUID)
+	if err != nil {
+		h.logger.
+			WithError(err).
+			WithField("course_id", courseUUID).
+			Error("failed to draft course")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to draft course"})
 		return
 	}
 

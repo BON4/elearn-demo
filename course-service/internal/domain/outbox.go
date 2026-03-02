@@ -22,8 +22,8 @@ const (
 )
 
 var (
-	CoursePublishedEventType   = "CoursePublished"
-	CourseUnPublishedEventType = "CourseUnPublished"
+	CoursePublishedEventType = "CoursePublished"
+	CourseDraftedEventType   = "CourseDrafted"
 )
 
 // Ошибки домена
@@ -36,18 +36,18 @@ var (
 )
 
 type OutboxEvent struct {
-	ID            uuid.UUID         `json:"id"`
-	AggregateID   uuid.UUID         `json:"aggregate_id"`
-	Type          string            `json:"type"`
-	Payload       json.RawMessage   `json:"payload" gorm:"type:jsonb"`
-	Status        OutboxEventStatus `json:"status"`
-	SchemaVersion int               `json:"version"`
-	CreatedAt     time.Time         `json:"created_at"`
-	RetryCount    int64             `json:"retry_count"`
-	LastError     string            `json:"last_error"`
+	ID            uuid.UUID `gorm:"type:uuid;primaryKey"`
+	AggregateID   uuid.UUID
+	Type          string
+	Payload       json.RawMessage
+	Status        OutboxEventStatus
+	SchemaVersion int
+	CreatedAt     time.Time
+	RetryCount    int64
+	LastError     string
 }
 
-func CoursePublishedEvent(courseID uuid.UUID) *OutboxEvent {
+func CoursePublishedEvent(courseID uuid.UUID, courseVersion int64) *OutboxEvent {
 	now := time.Now()
 	e := &OutboxEvent{
 		ID:            uuid.New(),
@@ -60,6 +60,25 @@ func CoursePublishedEvent(courseID uuid.UUID) *OutboxEvent {
 	e.SetPayload(contracts.CoursePublishedEventPayload{
 		CourseID:    courseID,
 		PublishedAt: now,
+		Version:     courseVersion,
+	})
+	return e
+}
+
+func CourseDraftedEvent(courseID uuid.UUID, courseVersion int64) *OutboxEvent {
+	now := time.Now()
+	e := &OutboxEvent{
+		ID:            uuid.New(),
+		AggregateID:   courseID,
+		Type:          CourseDraftedEventType,
+		Status:        Pending,
+		SchemaVersion: contracts.CourseDraftedEventSchemaVersion,
+		CreatedAt:     now,
+	}
+	e.SetPayload(contracts.CourseDraftedEventPayload{
+		CourseID:    courseID,
+		DraftededAt: now,
+		Version:     courseVersion,
 	})
 	return e
 }

@@ -8,19 +8,20 @@ import (
 )
 
 type Course struct {
-	ID          uuid.UUID
+	ID          uuid.UUID `gorm:"type:uuid;primaryKey"`
 	Title       string
 	Description string
 	AuthorID    uuid.UUID
 	Status      CourseStatus
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+	Version     int64
 }
 
 type CourseStatus string
 
 const (
-	Draft     CourseStatus = "draft"
+	Draft     CourseStatus = "drafted"
 	Published CourseStatus = "published"
 )
 
@@ -70,4 +71,19 @@ func (c *Course) Publish() error {
 	c.UpdatedAt = time.Now()
 
 	return nil
+}
+
+func (c *Course) Draft() error {
+	if err := c.Validate(); err != nil {
+		return err
+	}
+
+	c.Status = Draft
+	c.UpdatedAt = time.Now()
+
+	return nil
+}
+
+func (c *Course) IncVersion() {
+	c.Version++
 }

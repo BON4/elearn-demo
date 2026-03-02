@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/BON4/elearn-demo/course-service/internal/config"
-	"github.com/BON4/elearn-demo/course-service/internal/handlers"
+	"github.com/BON4/elearn-demo/access-service/internal/config"
+	"github.com/BON4/elearn-demo/access-service/internal/handlers"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )

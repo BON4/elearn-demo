@@ -8,13 +8,13 @@ import (
 type Handler struct {
 	courseService CourseService
 	logger        *logrus.Logger
-	testing       TestingService
+	producer      Producer
 }
 
-func NewHandler(coursesService CourseService, testing TestingService, logger *logrus.Logger) *Handler {
+func NewHandler(coursesService CourseService, producer Producer, logger *logrus.Logger) *Handler {
 	return &Handler{
 		courseService: coursesService,
-		testing:       testing,
+		producer:      producer,
 		logger:        logger,
 	}
 }
@@ -25,6 +25,7 @@ func (h *Handler) Register(r *gin.Engine) {
 		group.POST("", h.CreateCourse)
 		group.GET("/:id", h.GetCourse)
 		group.POST("/:id/publish", h.PublishCourse)
+		group.POST("/:id/draft", h.DraftCourse)
 	}
 
 	group = r.Group("/tests")

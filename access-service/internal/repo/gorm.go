@@ -1,7 +1,7 @@
 package repo
 
 import (
-	"github.com/BON4/elearn-demo/course-service/internal/domain"
+	"github.com/BON4/elearn-demo/access-service/internal/domain"
 	"gorm.io/gorm"
 )
 
@@ -22,15 +22,21 @@ func (c MonoRepo) WithTx(tx *gorm.DB) *MonoRepo {
 }
 
 func (m *MonoRepo) MigrateDomain() error {
-	err := m.AutoMigrate(&domain.Course{})
+	err := m.AutoMigrate(&domain.UserCourseAccess{})
 	if err != nil {
 		return err
 	}
 
-	err = m.AutoMigrate(&domain.OutboxEvent{})
+	err = m.AutoMigrate(&domain.CourseRM{})
 	if err != nil {
 		return err
 	}
+
+	err = m.AutoMigrate(&domain.ProcessedEvent{})
+	if err != nil {
+		return err
+	}
+
 	return nil
 
 }

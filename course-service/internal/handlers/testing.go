@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type TestingService interface {
+type Producer interface {
 	PauseWorker()
 	ResumeWorker()
 }
 
 func (h *Handler) TestPauseWorker(c *gin.Context) {
-	h.testing.PauseWorker()
-	c.Status(http.StatusOK)
+	h.producer.PauseWorker()
+	c.JSON(http.StatusOK, gin.H{"status": "paused"})
 }
 
 func (h *Handler) TestResumeWorker(c *gin.Context) {
-	h.testing.ResumeWorker()
-	c.Status(http.StatusOK)
+	h.producer.ResumeWorker()
+	c.JSON(http.StatusOK, gin.H{"status": "resumed"})
 }

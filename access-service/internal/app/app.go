@@ -6,14 +6,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/BON4/elearn-demo/course-service/internal/config"
-	"github.com/BON4/elearn-demo/course-service/internal/handlers"
-	"github.com/BON4/elearn-demo/course-service/internal/infra"
-	"github.com/BON4/elearn-demo/course-service/internal/logger"
-	"github.com/BON4/elearn-demo/course-service/internal/outbox"
-	"github.com/BON4/elearn-demo/course-service/internal/repo"
-	"github.com/BON4/elearn-demo/course-service/internal/server"
-	"github.com/BON4/elearn-demo/course-service/internal/service"
+	"github.com/BON4/elearn-demo/access-service/internal/config"
+	"github.com/BON4/elearn-demo/access-service/internal/consumer"
+	"github.com/BON4/elearn-demo/access-service/internal/handlers"
+	"github.com/BON4/elearn-demo/access-service/internal/infra"
+	"github.com/BON4/elearn-demo/access-service/internal/logger"
+	"github.com/BON4/elearn-demo/access-service/internal/repo"
+	"github.com/BON4/elearn-demo/access-service/internal/server"
+	"github.com/BON4/elearn-demo/access-service/internal/service"
 )
 
 func Run(ctx context.Context, cfg *config.Config) error {
@@ -41,22 +41,12 @@ func Run(ctx context.Context, cfg *config.Config) error {
 	}
 
 	coursesService := service.NewCoursesService(rp)
-	outBoxService := service.NewOutboxService(rp)
+	accessService := service.NewAccessService(rp)
+	consWorkerWg := sync.WaitGroup{}
+	cons := consumer.NewConsumer(rbmq, "access", coursesService, cfg.ConsumerInterval)
 
-	outboxWorkerWg := sync.WaitGroup{}
-	outboxWorker := outbox.NewOutboxWorker(
-		outBoxService,
-		rbmq,
-		cfg.OutboxWorkerInterval)
-
-	testService := service.NewTestingService(outboxWorker)
-
-	h := handlers.NewHandler(coursesService, testService, lg)
+	h := handlers.NewHandler(accessService, cons, lg)
 	srv := server.NewServer(*cfg, h, lg)
-
-	outboxWorkerWg.Go(func() {
-		outboxWorker.Run(ctx)
-	})
 
 	go func() {
 		if err := srv.StartBlocking(); err != nil {
@@ -64,8 +54,8 @@ func Run(ctx context.Context, cfg *config.Config) error {
 		}
 	}()
 
-	outboxWorkerWg.Go(func() {
-		outboxWorker.Run(ctx)
+	consWorkerWg.Go(func() {
+		cons.Run(ctx)
 	})
 
 	<-ctx.Done()
@@ -77,7 +67,7 @@ func Run(ctx context.Context, cfg *config.Config) error {
 		lg.WithError(err).Error("shutdown error")
 	}
 
-	outboxWorkerWg.Wait()
+	consWorkerWg.Wait()
 
 	lg.Println("Server stopped")
 	return nil

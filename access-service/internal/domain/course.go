@@ -9,17 +9,19 @@ import (
 )
 
 type CourseRM struct {
-	ID          uuid.UUID
+	ID          uuid.UUID `gorm:"type:uuid;primaryKey"`
 	Status      CourseStatus
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	PublishedAt time.Time
+	DraftedAt   time.Time
+	Version     int64
 }
 
 type CourseStatus string
 
 const (
-	Draft     CourseStatus = "draft"
+	Drafted   CourseStatus = "drafted"
 	Published CourseStatus = "published"
 )
 
@@ -29,7 +31,7 @@ var (
 
 func (c *CourseRM) Validate() error {
 	switch c.Status {
-	case Draft, Published:
+	case Drafted, Published:
 	default:
 		return ErrInvalidStatus
 	}
@@ -37,7 +39,7 @@ func (c *CourseRM) Validate() error {
 	return nil
 }
 
-func CourceFromContract(ctr contracts.CoursePublishedEventPayload) *CourseRM {
+func PublishedCourceFromContract(ctr contracts.CoursePublishedEventPayload) *CourseRM {
 	now := time.Now()
 	return &CourseRM{
 		ID:          ctr.CourseID,
@@ -45,5 +47,18 @@ func CourceFromContract(ctr contracts.CoursePublishedEventPayload) *CourseRM {
 		CreatedAt:   now,
 		UpdatedAt:   now,
 		PublishedAt: ctr.PublishedAt,
+		Version:     ctr.Version,
+	}
+}
+
+func DraftedCourceFromContract(ctr contracts.CourseDraftedEventPayload) *CourseRM {
+	now := time.Now()
+	return &CourseRM{
+		ID:        ctr.CourseID,
+		Status:    Drafted,
+		CreatedAt: now,
+		UpdatedAt: now,
+		DraftedAt: ctr.DraftededAt,
+		Version:   ctr.Version,
 	}
 }

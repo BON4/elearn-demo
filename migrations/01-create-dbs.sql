@@ -1,0 +1,2 @@
+CREATE DATABASE courses;
+CREATE DATABASE access;

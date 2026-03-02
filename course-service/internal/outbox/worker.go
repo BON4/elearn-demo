@@ -41,12 +41,12 @@ func NewOutboxWorker(
 	}
 }
 
-func (w *Worker) Pause() {
+func (w *Worker) PauseWorker() {
 	w.paused.Store(true)
 	log.Info("outbox worker paused")
 }
 
-func (w *Worker) Resume() {
+func (w *Worker) ResumeWorker() {
 	w.paused.Store(false)
 	log.Info("outbox worker resumed")
 }

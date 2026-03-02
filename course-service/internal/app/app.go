@@ -49,14 +49,8 @@ func Run(ctx context.Context, cfg *config.Config) error {
 		rbmq,
 		cfg.OutboxWorkerInterval)
 
-	testService := service.NewTestingService(outboxWorker)
-
-	h := handlers.NewHandler(coursesService, testService, lg)
+	h := handlers.NewHandler(coursesService, outboxWorker, lg)
 	srv := server.NewServer(*cfg, h, lg)
-
-	outboxWorkerWg.Go(func() {
-		outboxWorker.Run(ctx)
-	})
 
 	go func() {
 		if err := srv.StartBlocking(); err != nil {

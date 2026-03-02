@@ -1,6 +1,6 @@
 package contracts
 
 var (
-	CoursePublishedRoutingKey   = "course.published"
-	CourseUnPublishedRoutingKey = "course.unpublished"
+	CoursePublishedRoutingKey = "course.published"
+	CourseDraftedRoutingKey   = "course.drafted"
 )

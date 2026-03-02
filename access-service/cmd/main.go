@@ -17,14 +17,19 @@ func main() {
 	pflag.StringVarP(&configPath, "config", "c", "", "path to ini config file")
 	pflag.Parse()
 
-	cfg, err := config.LoadFromEnv()
-	if err != nil {
-		log.Error(err)
-		os.Exit(1)
-	}
+	var (
+		cfg *config.Config
+		err error
+	)
 
 	if configPath != "" {
 		cfg, err = config.LoadFromINI(configPath)
+		if err != nil {
+			log.Error(err)
+			os.Exit(1)
+		}
+	} else {
+		cfg, err = config.LoadFromEnv()
 		if err != nil {
 			log.Error(err)
 			os.Exit(1)

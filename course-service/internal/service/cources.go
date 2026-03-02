@@ -26,6 +26,7 @@ func (c *CoursesService) CreateCourse(ctx context.Context, title string, descrip
 		Description: description,
 		Status:      domain.Draft,
 		AuthorID:    authorID,
+		Version:     0,
 	}
 
 	err := domainCource.Validate()
@@ -52,6 +53,7 @@ func (c *CoursesService) GetCourse(ctx context.Context, courseID uuid.UUID) (*do
 }
 
 func (c *CoursesService) SaveCourse(ctx context.Context, course *domain.Course) error {
+	course.IncVersion()
 	err := course.Validate()
 	if err != nil {
 		return err
@@ -84,12 +86,41 @@ func (c *CoursesService) PublishCourse(ctx context.Context, courseID uuid.UUID) 
 			return err
 		}
 
-		txC.SaveCourse(ctx, course)
 		err = txC.SaveCourse(ctx, course)
 		if err != nil {
 			return err
 		}
-		event := domain.CoursePublishedEvent(courseID)
+		event := domain.CoursePublishedEvent(courseID, course.Version)
+
+		err = txC.CreateOutboxEvent(ctx, event)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+func (c *CoursesService) DraftCourse(ctx context.Context, courseID uuid.UUID) error {
+	course, err := c.GetCourse(ctx, courseID)
+	if err != nil {
+		return err
+	}
+
+	return c.db.Transaction(func(tx *gorm.DB) error {
+		rp := c.db.WithTx(tx)
+		txC := NewCoursesService(rp)
+
+		err = course.Draft()
+		if err != nil {
+			return err
+		}
+
+		err = txC.SaveCourse(ctx, course)
+		if err != nil {
+			return err
+		}
+		event := domain.CourseDraftedEvent(courseID, course.Version)
 
 		err = txC.CreateOutboxEvent(ctx, event)
 		if err != nil {

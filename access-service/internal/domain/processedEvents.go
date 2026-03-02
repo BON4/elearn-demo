@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -8,10 +9,15 @@ import (
 
 var (
 	CoursePublishedProcessedEventType = "published"
+	CourseDraftededProcessedEventType = "drafted"
+)
+
+var (
+	ErrEventAlreadyProcessed = errors.New("event already have been processed, idempotency violation")
 )
 
 type ProcessedEvent struct {
-	ID          uuid.UUID `gorm:"primaryKey"`
+	ID          uuid.UUID `gorm:"type:uuid;primaryKey"`
 	Type        string
 	ProcessedAt time.Time
 }

@@ -19,13 +19,30 @@ services:
       networks:
         - backend
 
+  access-service:
+      build:
+        context: ../
+        dockerfile: Dockerfile.accesssrv
+      container_name: access-service
+      ports:
+        - "8081:8081"
+      depends_on:
+        postgres:
+          condition: service_healthy
+        rabbitmq:
+          condition: service_started
+      environment:
+        DATABASE_URL: postgres://postgres:postgres@postgres:5432/access?sslmode=disable
+        REBBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      networks:
+        - backend
+
   postgres:
     image: postgres:16-alpine
     container_name: courses-postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: courses
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -34,6 +51,7 @@ services:
     ports:
       - "5433:5432"
     volumes:
+      - ../migrations:/docker-entrypoint-initdb.d
       - postgres_data:/var/lib/postgresql/data
     networks:
       - backend

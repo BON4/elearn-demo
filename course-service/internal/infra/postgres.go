@@ -19,9 +19,6 @@ func tryToConnect(ctx context.Context, dsn string) (*gorm.DB, error) {
 	var err error
 	for i := range 5 {
 		gormDB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
-		if err != nil {
-			return nil, err
-		}
 		if err == nil {
 			return gormDB, nil
 		}
@@ -45,13 +42,11 @@ func NewPostgres(ctx context.Context, dsn string) (*PostgresClient, error) {
 		return nil, err
 	}
 
-	// Проверка соединения
 	if err := ping(ctx, sqlDB); err != nil {
 		_ = sqlDB.Close()
 		return nil, err
 	}
 
-	// Базовые настройки пула (демо, но правильно)
 	sqlDB.SetMaxOpenConns(25)
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetConnMaxLifetime(time.Hour)

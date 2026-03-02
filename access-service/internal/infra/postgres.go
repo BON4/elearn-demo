@@ -19,9 +19,6 @@ func tryToConnect(ctx context.Context, dsn string) (*gorm.DB, error) {
 	var err error
 	for i := range 5 {
 		gormDB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
-		if err != nil {
-			return nil, err
-		}
 		if err == nil {
 			return gormDB, nil
 		}

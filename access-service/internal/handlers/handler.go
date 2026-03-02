@@ -6,25 +6,24 @@ import (
 )
 
 type Handler struct {
-	courseService CourseService
+	accessService AccessService
 	logger        *logrus.Logger
-	testing       TestingService
+	consumer      Consumer
 }
 
-func NewHandler(coursesService CourseService, testing TestingService, logger *logrus.Logger) *Handler {
+func NewHandler(accessService AccessService, consumer Consumer, logger *logrus.Logger) *Handler {
 	return &Handler{
-		courseService: coursesService,
-		testing:       testing,
+		accessService: accessService,
+		consumer:      consumer,
 		logger:        logger,
 	}
 }
 
 func (h *Handler) Register(r *gin.Engine) {
-	group := r.Group("/courses")
+	group := r.Group("/access")
 	{
-		group.POST("", h.CreateCourse)
-		group.GET("/:id", h.GetCourse)
-		group.POST("/:id/publish", h.PublishCourse)
+		group.GET("/:user_id/:course_id", h.GetUserAccess)
+		group.GET("/:user_id", h.GetUserAccessList)
 	}
 
 	group = r.Group("/tests")

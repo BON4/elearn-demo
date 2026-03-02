@@ -5,11 +5,11 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # копируем только курс-сервис
-COPY course-service ./course-service
+COPY access-service ./access-service
 COPY contracts ./contracts
 
 # собираем бинарник под linux/amd64
-RUN go build -o main ./course-service/cmd/main.go
+RUN go build -o main ./access-service/cmd/main.go
 
 # Run stage
 FROM alpine:3.18
@@ -18,7 +18,7 @@ WORKDIR /app
 
 # копируем бинарник и конфиг
 COPY --from=builder /app/main ./main
-COPY ./course-service-cfg.ini ./course-service-cfg.ini
+COPY ./access-service-cfg.ini ./access-service-cfg.ini
 
 EXPOSE 8080
-CMD ["./main", "--config=course-service-cfg.ini"]
+CMD ["./main", "--config=access-service-cfg.ini"]

@@ -13,8 +13,8 @@ func CourseEventTypeToRoutingKey(evtT string) (string, error) {
 	switch evtT {
 	case domain.CoursePublishedEventType:
 		return contracts.CoursePublishedRoutingKey, nil
-	case domain.CourseUnPublishedEventType:
-		return contracts.CourseUnPublishedRoutingKey, nil
+	case domain.CourseDraftedEventType:
+		return contracts.CourseDraftedRoutingKey, nil
 	}
 	return "", fmt.Errorf("uknown routing key for event type: %s", evtT)
 }
