@@ -21,9 +21,11 @@ const (
 	MAX_FAILED_EVENT_RETRY_COUNT = 200
 )
 
-var (
-	CoursePublishedEventType = "CoursePublished"
-	CourseDraftedEventType   = "CourseDrafted"
+type EventType string
+
+const (
+	CoursePublishedEventType EventType = "CoursePublished"
+	CourseDraftedEventType   EventType = "CourseDrafted"
 )
 
 // Ошибки домена
@@ -38,7 +40,7 @@ var (
 type OutboxEvent struct {
 	ID            uuid.UUID `gorm:"type:uuid;primaryKey"`
 	AggregateID   uuid.UUID
-	Type          string
+	Type          EventType
 	Payload       json.RawMessage
 	Status        OutboxEventStatus
 	SchemaVersion int

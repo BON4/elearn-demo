@@ -5,16 +5,16 @@ import (
 	"fmt"
 
 	"github.com/BON4/elearn-demo/contracts"
-	"github.com/BON4/elearn-demo/course-service/internal/domain"
+	"github.com/BON4/elearn-demo/payment-service/internal/domain"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func CourseEventTypeToRoutingKey(evtT domain.EventType) (string, error) {
+func PaymentEventTypeToRoutingKey(evtT domain.EventType) (string, error) {
 	switch evtT {
-	case domain.CoursePublishedEventType:
-		return contracts.CoursePublishedRoutingKey, nil
-	case domain.CourseDraftedEventType:
-		return contracts.CourseDraftedRoutingKey, nil
+	case domain.PaymentSucceededEventType:
+		return contracts.PaymentSucceededRoutingKey, nil
+	case domain.PaymentRefundedEventType:
+		return contracts.PaymentRefoundedRoutingKey, nil
 	}
 	return "", fmt.Errorf("uknown routing key for event type: %s", evtT)
 }
