@@ -25,12 +25,12 @@ func (h *Handler) Register(r *gin.Engine) {
 	group := r.Group("/payments")
 	{
 		group.POST("", h.CreatePayment)
-		group.POST("/:payment_id", h.GetPayment)
+		group.GET("/:payment_id", h.GetPayment)
 		group.POST("/:payment_id/process", h.ProcessPayment)
 		group.POST("/:payment_id/refund", h.RefoundPayment)
 
 		group.POST("/webhook/:provider", h.ProviderWebhook)
-		group.POST("/user/:user_id", h.GetUserPayments)
+		group.GET("/user/:user_id", h.GetUserPayments)
 	}
 
 	group = r.Group("/tests")

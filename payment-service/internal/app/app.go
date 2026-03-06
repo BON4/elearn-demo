@@ -41,10 +41,17 @@ func Run(ctx context.Context, cfg *config.Config) error {
 		return fmt.Errorf("failed to init rbmq: %w", err)
 	}
 
-	paymentProvider := payment.NewMockPaymentProvider()
+	paymentProvider := payment.NewMockPaymentProvider(cfg.PaymentProviderWebhookURL)
 
 	eventsServise := service.NewEventService(rp)
-	paymentsService := service.NewPaymentsService(rp, eventsServise, paymentProvider)
+	coursesService := service.NewCourseServiceClient(cfg.CoursesUrl)
+
+	paymentsService := service.NewPaymentsService(
+		rp,
+		eventsServise,
+		paymentProvider,
+		coursesService,
+	)
 
 	producerWg := sync.WaitGroup{}
 	producerWorker := outbox.NewProducerWorker(

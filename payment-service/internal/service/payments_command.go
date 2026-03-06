@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/BON4/elearn-demo/payment-service/internal/domain"
 	"github.com/BON4/elearn-demo/payment-service/internal/repo"
@@ -41,7 +42,15 @@ func (c *PaymentsService) SavePayment(ctx context.Context, payment *domain.Payme
 }
 
 func (c *PaymentsService) CreatePayment(ctx context.Context, userID, courseID uuid.UUID, amount int64, currency string, provider string) (*domain.Payment, error) {
-	// TODO: integration with course-service to check if course can be purchesed
+	course, err := c.courseService.GetCourse(ctx, courseID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get course: %w", err)
+	}
+
+	err = course.Purchese()
+	if err != nil {
+		return nil, err
+	}
 
 	var domainPayment = domain.NewPayment(
 		userID,
@@ -51,7 +60,7 @@ func (c *PaymentsService) CreatePayment(ctx context.Context, userID, courseID uu
 		provider,
 	)
 
-	err := domainPayment.Validate()
+	err = domainPayment.Validate()
 	if err != nil {
 		return nil, err
 	}

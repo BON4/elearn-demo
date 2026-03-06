@@ -12,10 +12,12 @@ import (
 )
 
 type Config struct {
-	HTTPPort         string        `env:"HTTP_PORT" default:"8080"`
-	DBUrl            string        `env:"DATABASE_URL"`
-	RBBMQUrl         string        `env:"REBBITMQ_URL"`
-	ProducerInterval time.Duration `env:"PRODUCER_INTERVAL" default:"500ms"`
+	HTTPPort                  string        `env:"HTTP_PORT" default:"8080"`
+	DBUrl                     string        `env:"DATABASE_URL"`
+	RBBMQUrl                  string        `env:"REBBITMQ_URL"`
+	CoursesUrl                string        `env:"COURSES_URL"`
+	ProducerInterval          time.Duration `env:"PRODUCER_INTERVAL" default:"500ms"`
+	PaymentProviderWebhookURL string        `env:"PAYMENT_PROVIDER_WEBHOOK_URL"`
 }
 
 func (c *Config) Validate() error {
@@ -25,6 +27,14 @@ func (c *Config) Validate() error {
 
 	if c.RBBMQUrl == "" {
 		return errors.New("REBBITMQ_URL is required")
+	}
+
+	if c.CoursesUrl == "" {
+		return errors.New("COURSES_URL is required")
+	}
+
+	if c.PaymentProviderWebhookURL == "" {
+		return errors.New("PAYMENT_PROVIDER_WEBHOOK_URL is required")
 	}
 
 	if _, err := url.ParseRequestURI(c.DBUrl); err != nil {
@@ -78,10 +88,12 @@ func LoadFromINI(path string) (*Config, error) {
 	}
 
 	cfg := &Config{
-		HTTPPort:         file.Section("").Key("HTTP_PORT").MustString("8080"),
-		DBUrl:            file.Section("").Key("DATABASE_URL").String(),
-		RBBMQUrl:         file.Section("").Key("REBBITMQ_URL").String(),
-		ProducerInterval: interval,
+		HTTPPort:                  file.Section("").Key("HTTP_PORT").MustString("8080"),
+		DBUrl:                     file.Section("").Key("DATABASE_URL").String(),
+		RBBMQUrl:                  file.Section("").Key("REBBITMQ_URL").String(),
+		CoursesUrl:                file.Section("").Key("COURSES_URL").String(),
+		PaymentProviderWebhookURL: file.Section("").Key("PAYMENT_PROVIDER_WEBHOOK_URL").String(),
+		ProducerInterval:          interval,
 	}
 
 	if err := cfg.Validate(); err != nil {

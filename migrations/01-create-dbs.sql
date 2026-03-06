@@ -1,2 +1,3 @@
 CREATE DATABASE courses;
 CREATE DATABASE access;
+CREATE DATABASE payments;

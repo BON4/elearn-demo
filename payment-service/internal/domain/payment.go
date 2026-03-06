@@ -64,7 +64,7 @@ func NewPayment(
 }
 
 func (p *Payment) MarkProcessing() error {
-	if p.Status != PaymentStatusCreated {
+	if p.Status != PaymentStatusCreated && p.Status != PaymentStatusProcessing {
 		return ErrInvalidStatusTransition
 	}
 

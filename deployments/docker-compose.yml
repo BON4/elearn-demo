@@ -13,9 +13,23 @@ services:
           condition: service_healthy
         rabbitmq:
           condition: service_started
-      environment:
-        DATABASE_URL: postgres://postgres:postgres@postgres:5432/courses?sslmode=disable
-        REBBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      networks:
+        - backend
+
+  payments-service:
+      build:
+        context: ../
+        dockerfile: Dockerfile.paymentssrv
+      container_name: payments-service
+      ports:
+        - "8081:8081"
+      depends_on:
+        postgres:
+          condition: service_healthy
+        rabbitmq:
+          condition: service_started
+        courses-service:
+          condition: service_started
       networks:
         - backend
 
@@ -25,15 +39,12 @@ services:
         dockerfile: Dockerfile.accesssrv
       container_name: access-service
       ports:
-        - "8081:8081"
+        - "8082:8082"
       depends_on:
         postgres:
           condition: service_healthy
         rabbitmq:
           condition: service_started
-      environment:
-        DATABASE_URL: postgres://postgres:postgres@postgres:5432/access?sslmode=disable
-        REBBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
       networks:
         - backend
 

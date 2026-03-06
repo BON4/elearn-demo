@@ -90,7 +90,7 @@ func (h *Handler) ProcessPayment(c *gin.Context) {
 		return
 	}
 
-	h.paymentsService.MarkProcessedPayment(c, paymentID)
+	err = h.paymentsService.MarkProcessedPayment(c, paymentID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
