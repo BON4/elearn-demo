@@ -43,7 +43,13 @@ func Run(ctx context.Context, cfg *config.Config) error {
 	coursesService := service.NewCoursesService(rp)
 	accessService := service.NewAccessService(rp)
 	consWorkerWg := sync.WaitGroup{}
-	cons := consumer.NewConsumer(rbmq, "access", coursesService, cfg.ConsumerInterval)
+	cons := consumer.NewConsumer(
+		rbmq,
+		"access",
+		coursesService,
+		accessService,
+		cfg.ConsumerInterval,
+	)
 
 	h := handlers.NewHandler(accessService, cons, lg)
 	srv := server.NewServer(*cfg, h, lg)

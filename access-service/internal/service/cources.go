@@ -21,10 +21,16 @@ func NewCoursesService(rp *repo.MonoRepo) *CoursesService {
 	}
 }
 
+func (p *CoursesService) withRepo(rp *repo.MonoRepo) *CoursesService {
+	return &CoursesService{
+		db: rp,
+	}
+}
+
 func (c *CoursesService) ProcessPublishedCourseEvent(ctx context.Context, course domain.CourseRM, eventID uuid.UUID) error {
 	return c.db.Transaction(func(tx *gorm.DB) error {
-		rp := c.db.WithTx(tx)
-		txC := NewCoursesService(rp)
+		rp := c.db.WithTx(ctx, tx)
+		txC := c.withRepo(rp)
 
 		evt := domain.NewProcessedEvent(eventID, domain.CoursePublishedProcessedEventType)
 		res := txC.db.
@@ -76,8 +82,8 @@ func (c *CoursesService) ProcessPublishedCourseEvent(ctx context.Context, course
 
 func (c *CoursesService) ProcessDraftedCourseEvent(ctx context.Context, course domain.CourseRM, eventID uuid.UUID) error {
 	return c.db.Transaction(func(tx *gorm.DB) error {
-		rp := c.db.WithTx(tx)
-		txC := NewCoursesService(rp)
+		rp := c.db.WithTx(ctx, tx)
+		txC := c.withRepo(rp)
 
 		evt := domain.NewProcessedEvent(eventID, domain.CourseDraftededProcessedEventType)
 		res := txC.db.

@@ -8,8 +8,10 @@ import (
 )
 
 var (
-	CoursePublishedProcessedEventType = "published"
-	CourseDraftededProcessedEventType = "drafted"
+	CoursePublishedProcessedEventType  = "course-published"
+	CourseDraftededProcessedEventType  = "course-drafted"
+	PaymentSucceededProcessedEventType = "payment-succeeded"
+	PaymentRefoundedProcessedEventType = "payment-refounded"
 )
 
 var (

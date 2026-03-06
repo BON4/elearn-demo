@@ -1,6 +1,8 @@
 package repo
 
 import (
+	"context"
+
 	"github.com/BON4/elearn-demo/access-service/internal/domain"
 	"gorm.io/gorm"
 )
@@ -15,9 +17,9 @@ func NewMonoRepo(db *gorm.DB) *MonoRepo {
 	}
 }
 
-func (c MonoRepo) WithTx(tx *gorm.DB) *MonoRepo {
+func (c MonoRepo) WithTx(ctx context.Context, tx *gorm.DB) *MonoRepo {
 	return &MonoRepo{
-		tx,
+		tx.WithContext(ctx),
 	}
 }
 

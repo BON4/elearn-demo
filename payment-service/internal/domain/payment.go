@@ -162,7 +162,12 @@ func (p *Payment) ValidateForUpdate(old *Payment) error {
 	}
 
 	if old.Status.IsFinal() && old.Status != p.Status {
-		return ErrPaymentAlreadyFinal
+		// Switch from SUCCEED -> REFUND
+		if old.Status == PaymentStatusSucceeded && p.Status == PaymentStatusRefunded {
+			// ok
+		} else {
+			return ErrPaymentAlreadyFinal
+		}
 	}
 
 	if p.CreatedAt != old.CreatedAt {
